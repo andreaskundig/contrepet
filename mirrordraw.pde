@@ -1,7 +1,8 @@
 int myWidth = 640;
 int myHeight = int(myWidth*sqrt(2));
 boolean pMousePressed = false;
-Point offset = new Point( 10, 10 );
+color currentColor = color(0);
+Point offset = new Point( 40, 10 );
 Point corner = new Point(myWidth - offset.x, myHeight / 2 - offset.y ); 
 Point center = new Point (int(corner.x *.6), corner.y / 2);
 
@@ -9,27 +10,43 @@ int gutter = 10;
 Point translation1 = new Point(corner.x-center.x, gutter+corner.y+center.y);
 Point translation2 = new Point(corner.x-center.x, gutter+center.y);
 Point translation3 = new Point(-center.x, gutter+corner.y);
+Panel [] panels = {
+ new Panel(new Point(0,0), center, translation1, false),
+ new Panel(new Point(0,corner.y), center, translation2, true),
+ new Panel(new Point(center.x,0), corner, translation3, false)
+};
 
-Panel panel1 = new Panel(new Point(0,0), center, translation1, false);
-Panel panel2 = new Panel(new Point(0,corner.y), center, translation2, true);
-Panel panel3 = new Panel(new Point(center.x,0), corner, translation3, false);
+ColorField [] colors = { new ColorField(10, 0, color(255, 0, 0)),
+                         new ColorField(10+30, 0, color(0, 255, 0)),
+                         new ColorField(10+2*30, 0, color(0, 0, 255)),
+                         new ColorField(10+3*30, 0, color(255, 255, 255)),
+                         new ColorField(10+4*30, 0, color(0, 0, 0)),
+                       } ;
 
 void setup() {
   size(myWidth +10, myHeight +10);
-  stroke(0);
-  strokeWeight(3);
   clear();
 
 }
 
 void draw() {
+  stroke(0);
+  for(Panel panel: panels){
+    panel.drawPanel();
+    panel.drawTransformedPanel();
+  }
+
   if (pMousePressed && mousePressed) {
     Point a = new Point(pmouseX, pmouseY);
     Point b = new Point(mouseX, mouseY);
     
-    panel1.drawLines(a, b); 
-    panel2.drawLines(a, b); 
-    panel3.drawLines(a, b); 
+    stroke(currentColor);
+    for(Panel panel: panels){
+      panel.drawLines(a, b); 
+    } 
+    for(ColorField col: colors){
+      col.trigger(b);
+    }
   }
   if (keyPressed) {
     if (key == 'c' ) {
@@ -39,16 +56,16 @@ void draw() {
   pMousePressed = mousePressed;
 }
 
+
+
 void clear(){
   background(255);
+  strokeWeight(3);
 
-  panel1.drawPanel();
-  panel2.drawPanel();
-  panel3.drawPanel();
-  
-  panel1.drawTransformedPanel();
-  panel2.drawTransformedPanel();
-  panel3.drawTransformedPanel();
+
+  for(ColorField col: colors){
+    col.drawField();
+  }
 }
 
 class Point{
@@ -58,6 +75,36 @@ class Point{
     this.x = x;
     this.y = y;
   }
+}
+
+class ColorField{
+  color col;
+  int top;
+  int left;
+  int size = 30;
+  
+  ColorField(int top, int left, color col){
+    this.top = top;
+    this.left = left ;
+    this.col = col ;
+  }
+  
+  boolean containsPoint(Point p){
+     return p!=null && p.x >= left  && p.x <= left + size && p.y >= top  && p.y <= top + size ;
+  }
+  
+  void trigger(Point p){
+    if(containsPoint(p)){
+      currentColor = col;
+    }
+  }
+  
+  void drawField(){
+    fill(col);
+    rect(left, top, size, size);
+  }
+  
+  
 }
 
 class Panel{
