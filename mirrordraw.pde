@@ -2,7 +2,8 @@ int myWidth = 640;
 int myHeight = int(myWidth*sqrt(2));
 boolean pMousePressed = false;
 color currentColor = color(0);
-Point offset = new Point( 40, 10 );
+
+Point offset = new Point( 60, 10 );
 Point corner = new Point(myWidth - offset.x, myHeight / 2 - offset.y ); 
 Point center = new Point (int(corner.x *.6), corner.y / 2);
 
@@ -16,15 +17,17 @@ Panel [] panels = {
  new Panel(new Point(center.x,0), corner, translation3, false)
 };
 
-ColorField [] colors = { new ColorField(10, 0, color(255, 0, 0)),
-                         new ColorField(10+30, 0, color(0, 255, 0)),
-                         new ColorField(10+2*30, 0, color(0, 0, 255)),
-                         new ColorField(10+3*30, 0, color(255, 255, 255)),
-                         new ColorField(10+4*30, 0, color(0, 0, 0)),
+int fieldSize = 50;
+ColorField [] colors = { new ColorField(10, 0, fieldSize, color(255, 0, 0)),
+                         new ColorField(10+fieldSize, 0, fieldSize, color(0, 255, 0)),
+                         new ColorField(10+2*fieldSize, 0, fieldSize, color(0, 0, 255)),
+                         new ColorField(10+3*fieldSize, 0, fieldSize, color(255, 255, 255)),
+                         new ColorField(10+4*fieldSize, 0, fieldSize, color(0, 0, 0)),
                        } ;
 
 void setup() {
   size(myWidth +10, myHeight +10);
+  strokeWeight(3);
   clear();
 
 }
@@ -60,8 +63,7 @@ void draw() {
 
 void clear(){
   background(255);
-  strokeWeight(3);
-
+  stroke(255);
 
   for(ColorField col: colors){
     col.drawField();
@@ -83,10 +85,11 @@ class ColorField{
   int left;
   int size = 30;
   
-  ColorField(int top, int left, color col){
+  ColorField(int top, int left, int size, color col){
     this.top = top;
     this.left = left ;
     this.col = col ;
+    this.size = size;
   }
   
   boolean containsPoint(Point p){
