@@ -2,6 +2,7 @@ int myWidth = 640;
 int myHeight = int(myWidth*sqrt(2));
 boolean pMousePressed = false;
 color currentColor = color(0);
+int currentStrokeWeight = 3;
 
 Point offset = new Point( 60, 10 );
 Point corner = new Point(myWidth - offset.x, myHeight / 2 - offset.y ); 
@@ -18,38 +19,42 @@ Panel [] panels = {
 };
 
 int fieldSize = 50;
-ColorField [] colors = { new ColorField(10, 0, fieldSize, color(255, 0, 0)),
-                         new ColorField(10+fieldSize, 0, fieldSize, color(0, 255, 0)),
-                         new ColorField(10+2*fieldSize, 0, fieldSize, color(0, 0, 255)),
-                         new ColorField(10+3*fieldSize, 0, fieldSize, color(255, 255, 255)),
-                         new ColorField(10+4*fieldSize, 0, fieldSize, color(0, 0, 0)),
-                       } ;
+Field [] fields = { new ColorField(10, 0, fieldSize, color(255, 0, 0)),
+                    new ColorField(10+fieldSize, 0, fieldSize, color(0, 255, 0)),
+                    new ColorField(10+2*fieldSize, 0, fieldSize, color(0, 0, 255)),
+                    new ColorField(10+3*fieldSize, 0, fieldSize, color(255, 255, 255)),
+                    new ColorField(10+4*fieldSize, 0, fieldSize, color(0, 0, 0)),
+                    new BrushField(10+5*fieldSize, 0, fieldSize, 3),
+                    new BrushField(10+6*fieldSize, 0, fieldSize, 10),
+                    new BrushField(10+7*fieldSize, 0, fieldSize, 40),
+                   } ;
 
 void setup() {
   size(myWidth +10, myHeight +10);
-  strokeWeight(3);
   clear();
 
 }
 
 void draw() {
-  stroke(0);
-  for(Panel panel: panels){
-    panel.drawPanel();
-    panel.drawTransformedPanel();
-  }
 
   if (pMousePressed && mousePressed) {
     Point a = new Point(pmouseX, pmouseY);
     Point b = new Point(mouseX, mouseY);
     
     stroke(currentColor);
+    strokeWeight(currentStrokeWeight);
     for(Panel panel: panels){
       panel.drawLines(a, b); 
     } 
-    for(ColorField col: colors){
-      col.trigger(b);
+    for(Field field: fields){
+      field.trigger(b);
     }
+  }
+  stroke(0);
+  strokeWeight(3);
+  for(Panel panel: panels){
+    panel.drawPanel();
+    panel.drawTransformedPanel();
   }
   if (keyPressed) {
     if (key == 'c' ) {
@@ -59,14 +64,13 @@ void draw() {
   pMousePressed = mousePressed;
 }
 
-
-
 void clear(){
   background(255);
   stroke(255);
+  strokeWeight(3);
 
-  for(ColorField col: colors){
-    col.drawField();
+  for(Field field: fields){
+    field.drawField();
   }
 }
 
@@ -79,21 +83,32 @@ class Point{
   }
 }
 
-class ColorField{
-  color col;
+class Field{
   int top;
   int left;
   int size = 30;
   
-  ColorField(int top, int left, int size, color col){
+  Field(int top, int left, int size){
     this.top = top;
     this.left = left ;
-    this.col = col ;
     this.size = size;
   }
   
   boolean containsPoint(Point p){
      return p!=null && p.x >= left  && p.x <= left + size && p.y >= top  && p.y <= top + size ;
+  }
+  
+  void trigger(Point p){}
+  
+  void drawField(){}
+}
+
+class ColorField extends Field{
+  color col;
+  
+  ColorField(int top, int left, int size, color col){
+    super(top, left, size);
+    this.col = col ;
   }
   
   void trigger(Point p){
@@ -106,8 +121,29 @@ class ColorField{
     fill(col);
     rect(left, top, size, size);
   }
+}
+
+class BrushField extends Field{
+  int sWeight;
   
+  BrushField(int top, int left, int size, int sWeight){
+    super(top, left, size);
+    this.sWeight = sWeight ;
+  }
   
+  void trigger(Point p){
+    if(containsPoint(p)){
+      currentStrokeWeight = sWeight;
+    }
+  }
+  
+  void drawField(){
+    stroke(0);
+    strokeWeight(sWeight);
+    int x = left+size/2;
+    int y = top+size/2;
+    line(x , y, x, y);
+  }
 }
 
 class Panel{
