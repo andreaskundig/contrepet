@@ -25,9 +25,9 @@ Field [] fields = { new ColorField(10, 0, fieldSize, color(255, 0, 0)),
                     new ColorField(10 + 2*fSizeWithStroke, 0, fieldSize, color(0, 0, 255)),
                     new ColorField(10 + 3*fSizeWithStroke, 0, fieldSize, color(255, 255, 255)),
                     new ColorField(10 + 4*fSizeWithStroke, 0, fieldSize, color(0, 0, 0)),
-                    new BrushField(10 + 5*fSizeWithStroke, 0, fieldSize, 3),
-                    new BrushField(10 + 6*fSizeWithStroke, 0, fieldSize, 10),
-                    new BrushField(10 + 7*fSizeWithStroke, 0, fieldSize, 40),
+                    new BrushField(10 + 5*fSizeWithStroke + 5, 0, fieldSize, 3),
+                    new BrushField(10 + 6*fSizeWithStroke + 5, 0, fieldSize, 10),
+                    new BrushField(10 + 7*fSizeWithStroke + 5, 0, fieldSize, 40),
                    } ;
 
 void setup() {
@@ -45,7 +45,7 @@ void draw() {
     stroke(currentColor);
     strokeWeight(currentStrokeWeight);
     for(Panel panel: panels){
-      panel.drawLines(a, b); 
+      panel.drawLines(a, b, currentStrokeWeight/2 ); 
     } 
     for(Field field: fields){
       field.select(b);
@@ -189,22 +189,22 @@ class Panel{
     popMatrix();
    }
 
-   boolean containsPoint(Point p, boolean transformed){
+   boolean containsPoint(Point p, boolean transformed, int margin){
      int dX = transformed ? trans.x : 0;
      int dY = transformed ? trans.y : 0; 
      return p!=null && 
-            p.x >= left + dX && p.x <= right + dX && 
-            p.y >= top + dY && p.y <= bottom + dY ;
+            p.x >= left + dX + margin && p.x <= right + dX - margin && 
+            p.y >= top + dY + margin && p.y <= bottom + dY - margin ;
    } 
 
-   void drawLines(Point a, Point b){
-     drawLine(a, b, false);
-     drawLine(a, b, true);
+   void drawLines(Point a, Point b, int margin){
+     drawLine(a, b, margin, false);
+     drawLine(a, b, margin, true);
    }
    
-   void drawLine(Point a, Point b, boolean transformed){
-     boolean aInside = containsPoint(a, transformed);
-     boolean bInside = containsPoint(b, transformed);
+   void drawLine(Point a, Point b, int margin, boolean transformed){
+     boolean aInside = containsPoint(a, transformed, margin);
+     boolean bInside = containsPoint(b, transformed, margin);
      boolean insideNormal = aInside || bInside;
      
      Point start = a;
@@ -215,7 +215,7 @@ class Panel{
        Point inP = aInside? a : b;
        Point outP = aInside ? b : a;
        start = inP;
-       end = findIntersection(inP, outP, transformed);
+       end = findIntersection(inP, outP, transformed, margin);
      }
      line(start.x, start.y, end.x, end.y);
      drawTransformedLine(start, end, transformed);
@@ -237,17 +237,17 @@ class Panel{
      popMatrix();     
   }
    
-   Point findIntersection(Point inP, Point outP, boolean transformed){
+   Point findIntersection(Point inP, Point outP, boolean transformed, int margin){
        int dX = transformed ? trans.x : 0;
        int dY = transformed ? trans.y : 0;
        Point []points = {
-        intersectionHorizontal(inP, outP, top + dY),
-        intersectionHorizontal(inP, outP, bottom + dY ),
-        intersectionVertical(inP, outP, left + dX),
-        intersectionVertical(inP, outP, right + dX)
+        intersectionHorizontal(inP, outP, top + dY + margin),
+        intersectionHorizontal(inP, outP, bottom + dY - margin),
+        intersectionVertical(inP, outP, left + dX + margin),
+        intersectionVertical(inP, outP, right + dX - margin)
        };
        for(Point p: points){
-         if(containsPoint(p, transformed)){
+         if(containsPoint(p, transformed, margin)){
            return p;
          }
        }
@@ -257,11 +257,11 @@ class Panel{
    
  }
  
-Point intersectionHorizontal(Point a, Point b, int yH){
-  if(min(a.y, b.y) <= yH && yH <= max(a.y, b.y) ){
-    int newX = a.x;
-    if(b.y!=a.y){
-      newX += (b.x - a.x) * (yH - a.y) / (b.y - a.y);
+Point intersectionHorizontal(Point inP, Point outP, int yH){
+  if(min(inP.y, outP.y) <= yH && yH <= max(inP.y, outP.y) ){
+    int newX = inP.x;
+    if(outP.y!=inP.y){
+      newX += (outP.x - inP.x) * (yH - inP.y) / (outP.y - inP.y);
     }
     return  new Point(newX , yH);
   }
