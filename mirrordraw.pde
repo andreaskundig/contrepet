@@ -19,14 +19,15 @@ Panel [] panels = {
 };
 
 int fieldSize = 50;
+int fSizeWithStroke = fieldSize + 3;
 Field [] fields = { new ColorField(10, 0, fieldSize, color(255, 0, 0)),
-                    new ColorField(10+fieldSize, 0, fieldSize, color(0, 255, 0)),
-                    new ColorField(10+2*fieldSize, 0, fieldSize, color(0, 0, 255)),
-                    new ColorField(10+3*fieldSize, 0, fieldSize, color(255, 255, 255)),
-                    new ColorField(10+4*fieldSize, 0, fieldSize, color(0, 0, 0)),
-                    new BrushField(10+5*fieldSize, 0, fieldSize, 3),
-                    new BrushField(10+6*fieldSize, 0, fieldSize, 10),
-                    new BrushField(10+7*fieldSize, 0, fieldSize, 40),
+                    new ColorField(10 +   fSizeWithStroke, 0, fieldSize, color(0, 255, 0)),
+                    new ColorField(10 + 2*fSizeWithStroke, 0, fieldSize, color(0, 0, 255)),
+                    new ColorField(10 + 3*fSizeWithStroke, 0, fieldSize, color(255, 255, 255)),
+                    new ColorField(10 + 4*fSizeWithStroke, 0, fieldSize, color(0, 0, 0)),
+                    new BrushField(10 + 5*fSizeWithStroke, 0, fieldSize, 3),
+                    new BrushField(10 + 6*fSizeWithStroke, 0, fieldSize, 10),
+                    new BrushField(10 + 7*fSizeWithStroke, 0, fieldSize, 40),
                    } ;
 
 void setup() {
@@ -47,7 +48,7 @@ void draw() {
       panel.drawLines(a, b); 
     } 
     for(Field field: fields){
-      field.trigger(b);
+      field.select(b);
     }
   }
   stroke(0);
@@ -61,17 +62,15 @@ void draw() {
       clear();
     }
   }
+  
+  for(Field field: fields){
+    field.drawField();
+  }
   pMousePressed = mousePressed;
 }
 
 void clear(){
   background(255);
-  stroke(255);
-  strokeWeight(3);
-
-  for(Field field: fields){
-    field.drawField();
-  }
 }
 
 class Point{
@@ -98,7 +97,7 @@ class Field{
      return p!=null && p.x >= left  && p.x <= left + size && p.y >= top  && p.y <= top + size ;
   }
   
-  void trigger(Point p){}
+  void select(Point p){}
   
   void drawField(){}
 }
@@ -111,13 +110,19 @@ class ColorField extends Field{
     this.col = col ;
   }
   
-  void trigger(Point p){
+  void select(Point p){
     if(containsPoint(p)){
       currentColor = col;
     }
   }
-  
+   boolean isSelected(){
+    return this.col == currentColor;
+  }
+ 
   void drawField(){
+    stroke(isSelected()? 0 : 255);
+    strokeWeight(3);
+
     fill(col);
     rect(left, top, size, size);
   }
@@ -131,13 +136,22 @@ class BrushField extends Field{
     this.sWeight = sWeight ;
   }
   
-  void trigger(Point p){
+  void select(Point p){
     if(containsPoint(p)){
       currentStrokeWeight = sWeight;
     }
   }
   
+  boolean isSelected(){
+    return this.sWeight == currentStrokeWeight;
+  }
+  
   void drawField(){
+    stroke(isSelected()? 0 : 255);
+    strokeWeight(3);
+    noFill();
+    rect(left, top, size, size);
+
     stroke(0);
     strokeWeight(sWeight);
     int x = left+size/2;
