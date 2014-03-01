@@ -60,7 +60,7 @@ class Point{
 }
 
 class Panel{
-   Point translation;
+   Point trans;
    int left, right, top, bottom;
    boolean rotate180 = false;
 
@@ -69,7 +69,7 @@ class Panel{
      right = max(cornerA.x, cornerB.x) + offset.x;
      top = min(cornerA.y, cornerB.y) + offset.y;
      bottom = max(cornerA.y, cornerB.y) + offset.y;
-     this.translation = translation;
+     this.trans = translation;
      this.rotate180 = rotate180;
      //println("l"+left+" r"+right+" t"+top+" b"+bottom+" tx"+translation[0]+" ty"+translation[1]);
    }
@@ -83,18 +83,30 @@ class Panel{
    
    void drawTransformedPanel(){
     pushMatrix();  
-    translate(translation.x, translation.y);
+    translate(trans.x, trans.y);
     drawPanel();
     popMatrix();
    }
 
-   boolean containsPoint(Point p){
+   boolean containsPoint(Point p, boolean transformed){
+     if(transformed){
+       return p!=null && 
+              p.x >= left + trans.x && p.x <= right + trans.x && 
+              p.y >= top + trans.y && p.y <= bottom + trans.y;
+     }
      return p!=null && p.x >= left && p.x <= right && p.y >= top && p.y <= bottom;
    } 
+
+   void drawLines(Point a, Point b){
+     drawLine(a, b, false);
+     drawLine(a, b, true);
+   }
    
-   void drawLine(Point a, Point b){
-     boolean aInside = containsPoint(a);
-     boolean bInside = containsPoint(b);
+   void drawLine(Point a, Point b, boolean transformed){
+     boolean aInside = containsPoint(a, transformed);
+     boolean bInside = containsPoint(b, transformed);
+     boolean insideNormal = aInside || bInside;
+     
      Point start = a;
      Point end = b;
      if(!aInside && !bInside){
@@ -103,36 +115,39 @@ class Panel{
        Point inP = aInside? a : b;
        Point outP = aInside ? b : a;
        start = inP;
-       end = findIntersection(inP, outP);
+       end = findIntersection(inP, outP, transformed);
      }
      line(start.x, start.y, end.x, end.y);
-     drawTransformedLine(start,end);
+     drawTransformedLine(start, end, transformed);
    }
    
-   void drawTransformedLine(Point start, Point end){
+   void drawTransformedLine(Point start, Point end, boolean transformed){
      pushMatrix(); 
      if(rotate180) {
-       int axisX = (translation.x + right + left) /2;
-       int axisY = (translation.y + bottom + top) /2;
+       int axisX = (trans.x + right + left) /2;
+       int axisY = (trans.y + bottom + top) /2;
        translate(axisX, axisY);
        rotate(PI);
        translate(-axisX, -axisY);
      }else{
-        translate(translation.x, translation.y);
+       int sign = transformed ? -1 : 1;
+       translate(sign * trans.x, signe * trans.y);
      }
      line(start.x, start.y, end.x, end.y);
      popMatrix();     
   }
    
-   Point findIntersection(Point inP, Point outP){
+   Point findIntersection(Point inP, Point outP, boolean transformed){
+       int dX = transformed ? trans.x : 0;
+       int dY = transformed ? trans.y : 0;
        Point []points = {
-        intersectionHorizontal(inP, outP, top),
-        intersectionHorizontal(inP, outP, bottom),
-        intersectionVertical(inP, outP, left),
-        intersectionVertical(inP, outP, right)
+        intersectionHorizontal(inP, outP, top + dY),
+        intersectionHorizontal(inP, outP, bottom + dY ),
+        intersectionVertical(inP, outP, left + dX),
+        intersectionVertical(inP, outP, right + dX)
        };
        for(Point p: points){
-         if(containsPoint(p)){
+         if(containsPoint(p, transformed)){
            return p;
          }
        }
