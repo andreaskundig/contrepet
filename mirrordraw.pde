@@ -5,9 +5,9 @@ Point offset = new Point( 10, 10 );
 Point corner = new Point(myWidth - offset.x, myHeight / 2 - offset.y ); 
 Point center = new Point (int(corner.x *.6), corner.y / 2);
 
-int [] translation1 = {corner.x-center.x, 10 +corner.y+center.y};
-int [] translation2 = {corner.x-center.x, 10+ center.y};
-int [] translation3 = {-center.x, 10+ corner.y};
+Point translation1 = new Point(corner.x-center.x, 10 +corner.y+center.y);
+Point translation2 = new Point(corner.x-center.x, 10+ center.y);
+Point translation3 = new Point(-center.x, 10+ corner.y);
 
 Panel panel1 = new Panel(new Point(0,0), center, translation1, false);
 Panel panel2 = new Panel(new Point(0,corner.y), center, translation2, true);
@@ -60,11 +60,11 @@ class Point{
 }
 
 class Panel{
-   int[] translation;
+   Point translation;
    int left, right, top, bottom;
    boolean rotate180 = false;
 
-   Panel(Point cornerA, Point cornerB, int[] translation, boolean rotate180){
+   Panel(Point cornerA, Point cornerB, Point translation, boolean rotate180){
      left = min(cornerA.x, cornerB.x) + offset.x;
      right = max(cornerA.x, cornerB.x) + offset.x;
      top = min(cornerA.y, cornerB.y) + offset.y;
@@ -83,7 +83,7 @@ class Panel{
    
    void drawTransformedPanel(){
     pushMatrix();  
-    translate(translation[0], translation[1]);
+    translate(translation.x, translation.y);
     drawPanel();
     popMatrix();
    }
@@ -112,13 +112,13 @@ class Panel{
    void drawTransformedLine(Point start, Point end){
      pushMatrix(); 
      if(rotate180) {
-       int axisX = (translation[0] + right + left) /2;
-       int axisY = (translation[1] + bottom + top) /2;
+       int axisX = (translation.x + right + left) /2;
+       int axisY = (translation.y + bottom + top) /2;
        translate(axisX, axisY);
        rotate(PI);
        translate(-axisX, -axisY);
      }else{
-        translate(translation[0], translation[1]);
+        translate(translation.x, translation.y);
      }
      line(start.x, start.y, end.x, end.y);
      popMatrix();     
