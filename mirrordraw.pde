@@ -5,9 +5,10 @@ Point offset = new Point( 10, 10 );
 Point corner = new Point(myWidth - offset.x, myHeight / 2 - offset.y ); 
 Point center = new Point (int(corner.x *.6), corner.y / 2);
 
-Point translation1 = new Point(corner.x-center.x, 10 +corner.y+center.y);
-Point translation2 = new Point(corner.x-center.x, 10+ center.y);
-Point translation3 = new Point(-center.x, 10+ corner.y);
+int gutter = 10;
+Point translation1 = new Point(corner.x-center.x, gutter+corner.y+center.y);
+Point translation2 = new Point(corner.x-center.x, gutter+center.y);
+Point translation3 = new Point(-center.x, gutter+corner.y);
 
 Panel panel1 = new Panel(new Point(0,0), center, translation1, false);
 Panel panel2 = new Panel(new Point(0,corner.y), center, translation2, true);
@@ -26,9 +27,9 @@ void draw() {
     Point a = new Point(pmouseX, pmouseY);
     Point b = new Point(mouseX, mouseY);
     
-    panel1.drawLine(a, b); 
-    panel2.drawLine(a, b); 
-    panel3.drawLine(a, b); 
+    panel1.drawLines(a, b); 
+    panel2.drawLines(a, b); 
+    panel3.drawLines(a, b); 
   }
   if (keyPressed) {
     if (key == 'c' ) {
@@ -89,12 +90,11 @@ class Panel{
    }
 
    boolean containsPoint(Point p, boolean transformed){
-     if(transformed){
-       return p!=null && 
-              p.x >= left + trans.x && p.x <= right + trans.x && 
-              p.y >= top + trans.y && p.y <= bottom + trans.y;
-     }
-     return p!=null && p.x >= left && p.x <= right && p.y >= top && p.y <= bottom;
+     int dX = transformed ? trans.x : 0;
+     int dY = transformed ? trans.y : 0; 
+     return p!=null && 
+            p.x >= left + dX && p.x <= right + dX && 
+            p.y >= top + dY && p.y <= bottom + dY ;
    } 
 
    void drawLines(Point a, Point b){
@@ -131,7 +131,7 @@ class Panel{
        translate(-axisX, -axisY);
      }else{
        int sign = transformed ? -1 : 1;
-       translate(sign * trans.x, signe * trans.y);
+       translate(sign * trans.x, sign * trans.y);
      }
      line(start.x, start.y, end.x, end.y);
      popMatrix();     
