@@ -1,37 +1,44 @@
-int myWidth = 640;
-int myHeight = int(myWidth*sqrt(2));
 boolean pMousePressed = false;
 color currentColor = color(0);
 int currentStrokeWeight = 3;
 
-Point offset = new Point( 60, 10 );
-Point corner = new Point(myWidth - offset.x, myHeight / 2 - offset.y ); 
-Point center = new Point (int(corner.x *.6), corner.y / 2);
-
-int gutter = 10;
-Point translation1 = new Point(corner.x-center.x, gutter+corner.y+center.y);
-Point translation2 = new Point(corner.x-center.x, gutter+center.y);
-Point translation3 = new Point(-center.x, gutter+corner.y);
-Panel [] panels = {
- new Panel(new Point(0,0), center, translation1, false),
- new Panel(new Point(0,corner.y), center, translation2, true),
- new Panel(new Point(center.x,0), corner, translation3, false)
-};
-
-int fieldSize = 50;
-int fSizeWithStroke = fieldSize + 3;
-Field [] fields = { new ColorField(10, 0, fieldSize, color(255, 0, 0)),
-                    new ColorField(10 +   fSizeWithStroke, 0, fieldSize, color(0, 255, 0)),
-                    new ColorField(10 + 2*fSizeWithStroke, 0, fieldSize, color(0, 0, 255)),
-                    new ColorField(10 + 3*fSizeWithStroke, 0, fieldSize, color(255, 255, 255)),
-                    new ColorField(10 + 4*fSizeWithStroke, 0, fieldSize, color(0, 0, 0)),
-                    new BrushField(10 + 5*fSizeWithStroke + 5, 0, fieldSize, 3),
-                    new BrushField(10 + 6*fSizeWithStroke + 5, 0, fieldSize, 10),
-                    new BrushField(10 + 7*fSizeWithStroke + 5, 0, fieldSize, 40),
-                   } ;
+Panel [] panels ;
+Field [] fields;
 
 void setup() {
-  size(myWidth +10, myHeight +10);
+  int totalWidth = min(displayWidth, 640);
+  int totalHeight = min(displayHeight, int(totalWidth*sqrt(2)));
+  int myWidth = totalWidth - 10;
+  int myHeight = totalHeight -10;
+  size(totalWidth, totalHeight);
+  
+  Point offset = new Point( 60, 10 );
+  Point corner = new Point(myWidth - offset.x, myHeight / 2 - offset.y ); 
+  Point center = new Point (int(corner.x *.6), corner.y / 2);
+
+  int gutter = 10;
+  Point translation1 = new Point(corner.x-center.x, gutter+corner.y+center.y);
+  Point translation2 = new Point(corner.x-center.x, gutter+center.y);
+  Point translation3 = new Point(-center.x, gutter+corner.y);
+  panels = new Panel [] {
+     new Panel(new Point(0,0), center, translation1, false, offset),
+     new Panel(new Point(0,corner.y), center, translation2, true, offset),
+     new Panel(new Point(center.x,0), corner, translation3, false, offset)
+  };
+  
+  int fieldSize = 50; 
+  int fSizeWithStroke = fieldSize + 3;
+  fields = new Field []{ 
+    new ColorField(10, 0, fieldSize, color(255, 0, 0)),
+    new ColorField(10 +   fSizeWithStroke, 0, fieldSize, color(0, 255, 0)),
+    new ColorField(10 + 2*fSizeWithStroke, 0, fieldSize, color(0, 0, 255)),
+    new ColorField(10 + 3*fSizeWithStroke, 0, fieldSize, color(255, 255, 255)),
+    new ColorField(10 + 4*fSizeWithStroke, 0, fieldSize, color(0, 0, 0)),
+    new BrushField(10 + 5*fSizeWithStroke + 5, 0, fieldSize, 3),
+    new BrushField(10 + 6*fSizeWithStroke + 5, 0, fieldSize, 10),
+    new BrushField(10 + 7*fSizeWithStroke + 5, 0, fieldSize, 40),
+  } ;
+  
   clear();
 
 }
@@ -170,7 +177,7 @@ class Panel{
    int left, right, top, bottom;
    boolean rotate180 = false;
 
-   Panel(Point cornerA, Point cornerB, Point translation, boolean rotate180){
+   Panel(Point cornerA, Point cornerB, Point translation, boolean rotate180, Point offset){
      left = min(cornerA.x, cornerB.x) + offset.x;
      right = max(cornerA.x, cornerB.x) + offset.x;
      top = min(cornerA.y, cornerB.y) + offset.y;
