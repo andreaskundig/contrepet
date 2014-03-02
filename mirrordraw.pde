@@ -47,9 +47,7 @@ void draw() {
     for(Panel panel: panels){
       panel.drawLines(a, b, currentStrokeWeight/2 ); 
     } 
-    for(Field field: fields){
-      field.select(b);
-    }
+
   }
   stroke(0);
   strokeWeight(3);
@@ -67,6 +65,13 @@ void draw() {
     field.drawField();
   }
   pMousePressed = mousePressed;
+}
+
+void mouseClicked() {
+  Point b = new Point(mouseX, mouseY);
+  for(Field field: fields){
+    field.select(b);
+  }
 }
 
 void clear(){
@@ -205,20 +210,31 @@ class Panel{
    void drawLine(Point a, Point b, int margin, boolean transformed){
      boolean aInside = containsPoint(a, transformed, margin);
      boolean bInside = containsPoint(b, transformed, margin);
-     boolean insideNormal = aInside || bInside;
+     boolean aInsideMargin = containsPoint(a, transformed, 0);
+     boolean bInsideMargin = containsPoint(b, transformed, 0);
      
-     Point start = a;
-     Point end = b;
-     if(!aInside && !bInside){
-       return;
-     }else if (!aInside || !bInside){
-       Point inP = aInside? a : b;
-       Point outP = aInside ? b : a;
-       start = inP;
-       end = findIntersection(inP, outP, transformed, margin);
+     if(aInside || bInside){
+       Point start = a;
+       Point end = b;
+       if (aInside != bInside){
+         Point inP = aInside? a : b;
+         Point outP = aInside ? b : a;
+         start = inP;
+         end = findIntersection(inP, outP, transformed, margin);
+       }
+       line(start.x, start.y, end.x, end.y);
+       drawTransformedLine(start, end, transformed);
+     }else if(aInsideMargin || bInsideMargin){
+       a = aInsideMargin ? moveToMarginSide(a, margin) : a;
+       b = bInsideMargin ? moveToMarginSide(b, margin) : b;
+       drawLine(a, b, margin, transformed);
      }
-     line(start.x, start.y, end.x, end.y);
-     drawTransformedLine(start, end, transformed);
+   }
+   
+   Point moveToMarginSide(Point p, int margin){
+     int x = min(max(p.x, left + margin), right - margin);
+     int y = min(max(p.y, top + margin), bottom - margin);
+     return new Point(x,y);  
    }
    
    void drawTransformedLine(Point start, Point end, boolean transformed){
