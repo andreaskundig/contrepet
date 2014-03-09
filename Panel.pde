@@ -58,8 +58,8 @@ class Panel{
        line(start.x, start.y, end.x, end.y);
        drawTransformedLine(start, end, transformed);
      }else if(aInsideMargin || bInsideMargin){
-       a = aInsideMargin ? moveToMarginSide(a, margin) : a;
-       b = bInsideMargin ? moveToMarginSide(b, margin) : b;
+       a = aInsideMargin ? moveToMarginSide(a, margin, transformed) : a;
+       b = bInsideMargin ? moveToMarginSide(b, margin, transformed) : b;
        drawLine(a, b, margin, transformed);
      }
    }
@@ -81,9 +81,11 @@ class Panel{
    }
    
    
-   Point moveToMarginSide(Point p, int margin){
-     int x = min(max(p.x, left + margin), right - margin);
-     int y = min(max(p.y, top + margin), bottom - margin);
+   Point moveToMarginSide(Point p, int margin, boolean transformed){
+     int dX = transformed ? trans.x : 0;
+     int dY = transformed ? trans.y : 0; 
+     int x = min(max(p.x, left + margin + dX), right - margin + dX);
+     int y = min(max(p.y, top + margin + dY), bottom - margin + dY);
      return new Point(x,y);  
    }
 
