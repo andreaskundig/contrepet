@@ -39,7 +39,8 @@ void setup() {
     new ColorField(10 + 4*fSizeWithStroke, 0, fieldSize, color(0, 0, 0)),
     new BrushField(10 + 5*fSizeWithStroke + 5, 0, fieldSize, 3),
     new BrushField(10 + 6*fSizeWithStroke + 5, 0, fieldSize, 10),
-    new BrushField(10 + 7*fSizeWithStroke + 5, 0, fieldSize, 40),
+    new BrushField(10 + 7*fSizeWithStroke + 5, 0, fieldSize, 20),
+    new BrushField(10 + 8*fSizeWithStroke + 5, 0, fieldSize, 40),
   } ;
   
   clear();
